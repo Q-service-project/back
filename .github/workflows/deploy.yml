@@ -65,25 +65,11 @@ jobs:
           key: ${{ secrets.OCI_SSH_PRIVATE_KEY }}
           port: ${{ secrets.OCI_SSH_PORT }}
           script: |
-            export DATABASE_HOST=${{ secrets.DATABASE_HOST }}
-            export DATABASE_PORT=${{ secrets.DATABASE_PORT }}
-            export DATABASE_USER=${{ secrets.DATABASE_USER }}
-            export DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
-            export DATABASE_NAME=${{ secrets.DATABASE_NAME }}
-            export JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }}
-            export JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
+            echo "${{ secrets.APPLICATION }}" > application.yml
             docker pull wheon06/yeoun-backend:latest
             docker stop yeoun-backend || true
             docker rm yeoun-backend || true
-            docker run -d --name yeoun-backend -p 8080:8080 \
-            -e DATABASE_HOST=$DATABASE_HOST \
-            -e DATABASE_PORT=$DATABASE_PORT \
-            -e DATABASE_USER=$DATABASE_USER \
-            -e DATABASE_PASSWORD=$DATABASE_PASSWORD \
-            -e DATABASE_NAME=$DATABASE_NAME \
-            -e JWT_ACCESS_SECRET=$JWT_ACCESS_SECRET \
-            -e JWT_REFRESH_SECRET=$JWT_REFRESH_SECRET \
-            wheon06/yeoun-backend:latest
+            docker run -d --name yeoun-backend -p 8080:8080 wheon06/yeoun-backend:latest
 
       - name: Deploy frontend via SSH
         uses: appleboy/ssh-action@v0.1.8
