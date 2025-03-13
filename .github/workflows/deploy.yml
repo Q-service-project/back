@@ -67,6 +67,7 @@ jobs:
           script: |
             mkdir -p ~/backend/config
             echo "${{ secrets.APPLICATION }}" > ~/backend/config/application.yml
+            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > ~/backend/config/keystore.p12
             cat ~/backend/config/application.yml
             docker pull wheon06/yeoun-backend:latest
             docker stop yeoun-backend || true
@@ -74,6 +75,7 @@ jobs:
             docker run -d --name yeoun-backend \
               -p 8080:8080 \
               -v ~/backend/config/application.yml:/app/config/application.yml \
+              -v ~/backend/config/keystore.p12:/app/config/keystore.p12 \
               wheon06/yeoun-backend:latest
 
       - name: Deploy frontend via SSH
