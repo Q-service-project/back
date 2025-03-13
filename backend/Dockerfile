@@ -17,6 +17,9 @@ WORKDIR /app
 
 COPY --from=builder /app/build/libs/*-SNAPSHOT.jar ./app.jar
 
+COPY --from=builder /app/config/keystore.p12 /app/config/keystore.p12
+RUN chmod 644 /app/config/keystore.p12
+
 EXPOSE 8080
 
 USER nobody
