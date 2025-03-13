@@ -67,7 +67,7 @@ jobs:
           script: |
             mkdir -p ~/backend/config
             echo "${{ secrets.APPLICATION }}" > ~/backend/config/application.yml
-            echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > ~/backend/config/keystore.p12
+            echo "${{ secrets.KEYSTORE }}" | base64 -d > ~/backend/config/keystore.p12
             cat ~/backend/config/application.yml
             docker pull wheon06/yeoun-backend:latest
             docker stop yeoun-backend || true
