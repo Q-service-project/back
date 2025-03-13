@@ -1,4 +1,4 @@
-name: Deploy to Oracle Compute
+name: Deploy Spring Boot and Frontend
 
 on:
   push:
@@ -6,63 +6,94 @@ on:
       - main
 
 jobs:
-  deploy:
+  build-backend:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      # Frontend 빌드
-      - name: Install dependencies & Build React
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push backend Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./backend
+          push: true
+          tags: wheon06/yeoun-backend:latest
+
+  build-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build frontend
         run: |
           cd frontend
           npm install
-          npm run type-check
           npm run build
 
-      # Backend 빌드
-      - name: Set up JDK
-        uses: actions/setup-java@v3
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
         with:
-          distribution: 'temurin'
-          java-version: '21'
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Spring Boot app
-        run: |
-          cd backend
-          chmod +x ./gradlew
-          rm -rf ~/.gradle/caches
-          ./gradlew build -x test
+      - name: Build and push frontend Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          push: true
+          tags: wheon06/yeoun-frontend:latest
 
-      - name: 파일 목록 확인
-        run: |
-          ls -la frontend/dist
-          ls -la backend/build/libs
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
 
-      # 서버에 배포 (Frontend & Backend)
-      - name: Deploy to Oracle Compute Instance using rsync
-        run: |
-          docker run --rm -v ${{ github.workspace }}:/workspace \
-            instrumentisto/rsync-ssh rsync -avz -e "ssh -o StrictHostKeyChecking=no" \
-            /workspace/frontend/dist/ ubuntu@${{ secrets.OCI_COMPUTE_HOST }}:~/deploy/frontend/
-
-          docker run --rm -v ${{ github.workspace }}:/workspace \
-            instrumentisto/rsync-ssh rsync -avz -e "ssh -o StrictHostKeyChecking=no" \
-            /workspace/backend/build/libs/*.jar ubuntu@${{ secrets.OCI_COMPUTE_HOST }}:~/deploy/backend/
-
-      - name: Restart services
-        uses: appleboy/ssh-action@master
+    steps:
+      - name: Deploy backend via SSH
+        uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.OCI_COMPUTE_HOST }}
-          username: ubuntu
+          username: ${{ secrets.OCI_SSH_USER }}
           key: ${{ secrets.OCI_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.OCI_SSH_PORT }}
           script: |
-            # 프론트엔드 배포
-            sudo rm -rf /var/www/frontend
-            sudo mv ~/deploy/frontend /var/www/frontend
-            sudo systemctl restart nginx
+            export DATABASE_HOST=${{ secrets.DATABASE_HOST }}
+            export DATABASE_PORT=${{ secrets.DATABASE_PORT }}
+            export DATABASE_USER=${{ secrets.DATABASE_USER }}
+            export DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
+            export DATABASE_NAME=${{ secrets.DATABASE_NAME }}
+            export JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }}
+            export JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
+            docker pull wheon06/yeoun-backend:latest
+            docker stop yeoun-backend || true
+            docker rm yeoun-backend || true
+            docker run -d --name yeoun-backend -p 8080:8080 \
+            -e DATABASE_HOST=$DATABASE_HOST \
+            -e DATABASE_PORT=$DATABASE_PORT \
+            -e DATABASE_USER=$DATABASE_USER \
+            -e DATABASE_PASSWORD=$DATABASE_PASSWORD \
+            -e DATABASE_NAME=$DATABASE_NAME \
+            -e JWT_ACCESS_SECRET=$JWT_ACCESS_SECRET \
+            -e JWT_REFRESH_SECRET=$JWT_REFRESH_SECRET \
+            wheon06/yeoun-backend:latest
 
-            # 백엔드 실행
-            pkill -f 'java -jar' || true
-            nohup java -jar ~/deploy/backend/backend-*.jar > ~/deploy/backend/backend.log 2>&1 &
+      - name: Deploy frontend via SSH
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.OCI_COMPUTE_HOST }}
+          username: ${{ secrets.OCI_SSH_USER }}
+          key: ${{ secrets.OCI_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.OCI_SSH_PORT }}
+          script: |
+            docker pull wheon06/yeoun-frontend:latest
+            docker stop yeoun-frontend || true
+            docker rm yeoun-frontend || true
+            docker run -d --name yeoun-frontend -p 80:80 wheon06/yeoun-frontend:latest
