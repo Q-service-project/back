@@ -67,8 +67,8 @@ jobs:
           script: |
             mkdir -p ~/backend/config
             echo "${{ secrets.APPLICATION }}" > ~/backend/config/application.yml
-            chmod +r ~/backend/config/keystore.p12
-            cat ~/backend/config/keystore.p12
+            echo "${{ secrets.KEYSTORE }}" | base64 -d > ~/backend/config/keystore.p12
+            ls -l ~/backend/config # List the contents of the config directory
             cat ~/backend/config/application.yml
             docker pull wheon06/yeoun-backend:latest
             docker stop yeoun-backend || true
