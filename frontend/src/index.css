@@ -1,1 +1,99 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'ONE-Mobile-Regular';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/ONE-Mobile-Regular.woff')
+    format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'ONE-Mobile-Title';
+  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/ONE-Mobile-Title.woff')
+    format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@theme {
+  --default-font-family: 'ONE-Mobile-Title';
+  --font-desc: 'ONE-Mobile-Regular';
+
+  --color-black-primary: #1a1a1a;
+  --color-black-secondary: #1b1b1b;
+
+  --animate-spin-first: spin 15s ease-out infinite reverse;
+  --animate-spin-second: spin 13s linear infinite;
+  --animate-spin-third: spin 11s linear infinite reverse;
+
+  --animate-pulse-first: pulse 1.8s cubic-bezier(0.5, 0, 0.3, 1) infinite;
+  --animate-pulse-second: pulse 2.3s cubic-bezier(0.2, 0, 1, 1) infinite;
+}
+
+/* Default Color */
+:root {
+  --gradient-top-right: #aad2ff;
+  --gradient-right: #fc90d1d3;
+  --gradient-bottom-right: #f3c5ff;
+}
+
+/* 카테고리 별 색상 추가 예정 */
+
+@layer utilities {
+  .bg-circle-gradient {
+    background-color: #ffffff;
+    background-image:
+      radial-gradient(at top right, transparent 60%, var(--gradient-top-right) 90%),
+      linear-gradient(to right, transparent 50%, var(--gradient-right) 100%),
+      radial-gradient(at bottom right, transparent 40%, var(--gradient-bottom-right) 95%);
+  }
+
+  .circle {
+    border-radius: 100%;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    box-shadow: 0px 0px 1.5px 2px rgb(255, 255, 255);
+  }
+
+  .circle-layer-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    border-radius: 45%;
+    opacity: 30%;
+  }
+
+  .circle-layer {
+    width: 100%;
+    height: 100%;
+    border-radius: 45%;
+    box-shadow: 0px 0px 0px 1.5px rgb(255, 255, 255);
+  }
+}
+
+html {
+  min-height: 100svh;
+}
+
+body {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  overflow-x: hidden;
+}
+
+#root {
+  color: #ffffff;
+  background-color: #1a1a1a;
+  min-height: 100svh;
+}
+
+section {
+  min-height: 100svh;
+}
