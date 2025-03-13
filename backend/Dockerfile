@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y wget unzip \
 COPY build.gradle settings.gradle /app/
 RUN gradle build -x test --parallel --continue > /dev/null 2>&1 || true
 
-COPY backend/src/main/resources/keystore.p12 keystore.p12
+COPY src/main/resources/keystore.p12 /app/backend/config/keystore.p12
 
 COPY . /app
 RUN gradle build -x test --parallel
