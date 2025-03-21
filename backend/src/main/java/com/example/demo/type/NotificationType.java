@@ -10,6 +10,6 @@ public enum NotificationType {
     QUESTION_LIKE("QUESTION_LIKE"),
     COMMENT("COMMENT");
 
-    private final String type;
+    public final String type;
 
 }

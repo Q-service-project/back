@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Notification Test Page</title>
+</head>
+<body>
+  <button onclick="login()"> button </button>
+  <ol id="list">
+
+  </ol>
+</body>
+</html>
+<script type="text/javaScript">
+  // function login() {
+  //   const eventSource = new EventSource("https://localhost:8080/api/notification/connect", { withCredentials: true });
+  //
+  //   eventSource.onmessage = function (e) {
+  //     const newElement = document.createElement("li");
+  //     const eventList = document.getElementById("list");
+  //
+  //     newElement.textContent = "message: " + e.data;
+  //     eventList.appendChild(newElement);
+  //   };
+  //
+  //   setTimeout(() => {
+  //     eventSource.close();
+  //     sleep(10);
+  //     login();
+  //   }, 1000 * 30);
+  //
+  // }
+  function login() {
+    const eventSource = new EventSource("https://localhost:8080/api/notification/connect", { withCredentials: true });
+
+    eventSource.addEventListener("notification", function (event) {
+      const newElement = document.createElement("li");
+      const time = JSON.parse(event.data).time; // JSON 파싱 수정
+      newElement.textContent = "ping at " + time;
+      document.getElementById("eventList").appendChild(newElement);
+    });
+
+    eventSource.onerror = function () {
+      console.error("EventSource error. Reconnecting...");
+      setTimeout(login, 100); // sleep 제거하고 setTimeout으로 대체
+    };
+
+    setTimeout(() => {
+      eventSource.close();
+      console.log("EventSource closed. Reconnecting in 5s...");
+      setTimeout(login, 5000);
+    }, 1000 * 30);
+  }
+
+
+  function sleep(ms) {
+    const wakeUpTime = Date.now() + ms;
+    while (Date.now() < wakeUpTime) {}
+  }
+</script>
