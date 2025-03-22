@@ -28,16 +28,16 @@ public class UserEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String oAuthId;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String oAuthPlatform;
 
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String email;
 
     @Column
@@ -46,7 +46,7 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private String role;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String uuid;
 
     @CreatedDate
@@ -56,7 +56,8 @@ public class UserEntity implements UserDetails {
     private Date deletedDateTime;
 
     @Builder
-    public UserEntity(String oAuthId, String oAuthPlatform, String name, String email, String phone, String role, String uuid) {
+    public UserEntity(Long id, String oAuthId, String oAuthPlatform, String name, String email, String phone, String role, String uuid) {
+        this.id = id;
         this.oAuthId = oAuthId;
         this.oAuthPlatform = oAuthPlatform;
         this.name = name;

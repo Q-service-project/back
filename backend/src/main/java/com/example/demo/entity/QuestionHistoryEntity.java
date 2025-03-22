@@ -5,6 +5,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.util.Date;
@@ -23,9 +25,11 @@ public class QuestionHistoryEntity {
     private final Date createdDateTime = new Date();
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private UserEntity user;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private QuestionEntity question;
 
     @Builder

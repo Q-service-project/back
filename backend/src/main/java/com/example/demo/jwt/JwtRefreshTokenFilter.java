@@ -58,7 +58,7 @@ public class JwtRefreshTokenFilter extends OncePerRequestFilter {
 
             // security context에 authenticaion 저장
             SecurityContextHolder.getContext().setAuthentication(
-                    new UsernamePasswordAuthenticationToken(userId, null, dbUser.getAuthorities()));
+                    new UsernamePasswordAuthenticationToken(dbUser.getId(), null, dbUser.getAuthorities()));
 
             // 새로운 access, refresh token 발급
             String newAccess = jwtUtil.generateAccessToken(dbUser, JwtUtil.getIpFromRequest(request));

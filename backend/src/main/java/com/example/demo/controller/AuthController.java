@@ -78,6 +78,12 @@ public class AuthController {
 
         CookieUtil.addCookie(response, "accessToken", accessToken, accessTokenExpirationTime);
         CookieUtil.addCookie(response, "refreshToken", refreshToken, refreshTokenExpirationTime);
+
+        removeAnonymousToken(response);
+    }
+
+    private void removeAnonymousToken(HttpServletResponse response) {
+        CookieUtil.addCookie(response, "anonymousToken", null, 0L);
     }
 
 }

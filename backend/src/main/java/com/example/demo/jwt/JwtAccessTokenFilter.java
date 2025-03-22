@@ -52,7 +52,7 @@ public class JwtAccessTokenFilter extends OncePerRequestFilter {
             }
 
             // security context에 authenticaion 저장
-            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(userId, null, authorities));
+            SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(Long.valueOf(userId), null, authorities));
 
             log.info("인증 성공, 사용자 PK: {}, 권한: {}", userId, authorities);
 
